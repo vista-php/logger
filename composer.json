@@ -1,0 +1,44 @@
+{
+    "name": "vista/logger",
+    "type": "library",
+    "description": "Simple logger",
+    "keywords": ["logger", "simple logger"],
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Dusan Rajcevic",
+            "email": "dusanrajcevic@hotmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "psr/log": "^3.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.93",
+        "mockery/mockery": "^1.6",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^12.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vista\\Logger\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "check-style": "php-cs-fixer fix --dry-run --diff",
+        "fix-style": "php-cs-fixer fix",
+        "analyze": "phpstan analyse --level 10"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "classmap-authoritative": true
+    }
+}
