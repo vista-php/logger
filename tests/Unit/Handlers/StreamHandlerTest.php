@@ -5,6 +5,7 @@ namespace Tests\Unit\Handlers;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
+use Vista\Logger\Formatters\FormatterInterface;
 use Vista\Logger\Handlers\StreamHandler;
 use Vista\Logger\LogRecord;
 
@@ -115,5 +116,31 @@ class StreamHandlerTest extends TestCase
 
         $this->assertNotFalse($contents);
         $this->assertSame(2, substr_count($contents, 'First'));
+    }
+
+    public function testUsesFormatterOutput(): void
+    {
+        $path = $this->createTempPath();
+
+        $formatter = $this->createMock(FormatterInterface::class);
+        $formatter->expects($this->once())
+            ->method('format')
+            ->willReturn("CUSTOM");
+
+        $handler = new StreamHandler($path, LogLevel::DEBUG, $formatter);
+
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'Ignored',
+            context: [],
+            datetime: new DateTimeImmutable()
+        );
+
+        $handler->handle($record);
+
+        $contents = file_get_contents($path);
+
+        $this->assertNotFalse($contents);
+        $this->assertSame("CUSTOM", $contents);
     }
 }
