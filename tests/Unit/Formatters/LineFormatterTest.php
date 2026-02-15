@@ -9,6 +9,7 @@ use Vista\Logger\Formatters\LineFormatter;
 use Vista\Logger\LogRecord;
 use Psr\Log\LogLevel;
 use DateTimeImmutable;
+use JsonException;
 
 final class LineFormatterTest extends TestCase
 {
@@ -64,5 +65,45 @@ final class LineFormatterTest extends TestCase
         $result = $formatter->format($record);
 
         $this->assertStringEndsWith("\n", $result);
+    }
+
+    public function testThrowsJsonExceptionForInvalidContext(): void
+    {
+        $resource = tmpfile();
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'Test',
+            context: ["invalid" => $resource],
+            datetime: new DateTimeImmutable('2026-01-01 10:00:00')
+        );
+        
+        $formatter = new LineFormatter();
+        
+        $this->expectException(JsonException::class);
+
+        try {
+            $formatter->format($record);
+        } finally {
+            fclose($resource);
+        }
+    }
+
+    public function testDoesNotEscapeSlashes(): void
+    {
+        $formatter = new LineFormatter();
+
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'URL',
+            context: ['url' => 'https://example.com'],
+            datetime: new DateTimeImmutable('2026-01-01 10:00:00')
+        );
+
+        $result = $formatter->format($record);
+
+        $this->assertStringContainsString(
+            '"https://example.com"',
+            $result
+        );
     }
 }
