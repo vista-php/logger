@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vista\Logger\Formatters;
 
+use JsonException;
 use Vista\Logger\LogRecord;
 
 /**
@@ -18,6 +19,8 @@ final class LineFormatter implements FormatterInterface
 {
     /**
      * Formats the given log record into a single-line string.
+     *
+     * @throws JsonException
      */
     public function format(LogRecord $record): string
     {
@@ -34,6 +37,6 @@ final class LineFormatter implements FormatterInterface
     {
         return empty($context)
             ? ''
-            : ' ' . json_encode($context);
+            : ' ' . json_encode($context, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     }
 }
