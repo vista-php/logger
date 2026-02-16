@@ -1,9 +1,8 @@
 {
-    "name": "vista/logger",
+    "name": "vista-php/logger",
     "type": "library",
-    "description": "Simple logger",
-    "keywords": ["logger", "simple logger"],
-    "version": "1.0.0",
+    "description": "PSR-3 compliant logging package for PHP 8.3+.",
+    "keywords": ["psr-3", "logger", "logging", "php", "psr"],
     "authors": [
         {
             "name": "Dusan Rajcevic",
@@ -35,10 +34,6 @@
         "test": "phpunit",
         "check-style": "php-cs-fixer fix --dry-run --diff",
         "fix-style": "php-cs-fixer fix",
-        "analyze": "phpstan analyse --level 10"
-    },
-    "config": {
-        "optimize-autoloader": true,
-        "classmap-authoritative": true
+        "analyze": "phpstan analyse"
     }
 }
