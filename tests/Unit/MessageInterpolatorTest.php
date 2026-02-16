@@ -44,7 +44,7 @@ class MessageInterpolatorTest extends TestCase
     public function testStringableValuesAreReplaced(): void
     {
         $message = 'Hello {name}';
-        $context = ['name' => new class {
+        $context = ['name' => new class () {
             public function __toString(): string
             {
                 return 'Alice';

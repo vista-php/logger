@@ -7,10 +7,10 @@ namespace Tests\Unit;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LogLevel;
 use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\Logger;
 use Vista\Logger\LogRecord;
-use Psr\Log\LogLevel;
 use Vista\Logger\MessageInterpolator;
 
 final class LoggerTest extends TestCase
@@ -55,7 +55,7 @@ final class LoggerTest extends TestCase
         $handler->expects($this->once())
             ->method('handle')
             ->with($this->callback(
-                fn(LogRecord $record) => $record->level === $expectedLevel
+                fn (LogRecord $record) => $record->level === $expectedLevel
             ));
 
         $logger->{$method}('Test');
@@ -67,7 +67,7 @@ final class LoggerTest extends TestCase
         $handler->expects($this->once())
             ->method('handle')
             ->with($this->callback(
-                fn(LogRecord $record) => $record->message === 'Hello John'
+                fn (LogRecord $record) => $record->message === 'Hello John'
             ));
 
         $logger->info('Hello {name}', ['name' => 'John']);
@@ -76,7 +76,7 @@ final class LoggerTest extends TestCase
     public function testLogDoesNothingWhenNoHandlersAreRegistered(): void
     {
         $this->expectNotToPerformAssertions();
-        
+
         $logger = new Logger(new MessageInterpolator());
         $logger->info('Test');
     }

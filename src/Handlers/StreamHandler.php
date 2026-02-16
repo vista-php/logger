@@ -35,7 +35,7 @@ final class StreamHandler implements HandlerInterface
         string $minLevel = LogLevel::DEBUG,
         private readonly FormatterInterface $formatter = new LineFormatter(),
     ) {
-        $this->minLevelPriority = LevelMap::toPriority($minLevel); 
+        $this->minLevelPriority = LevelMap::toPriority($minLevel);
     }
 
     /**

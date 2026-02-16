@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Handlers;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LogLevel;
 use Vista\Logger\Handlers\NullHandler;
 use Vista\Logger\LogRecord;
-use Psr\Log\LogLevel;
-use DateTimeImmutable;
 
 final class NullHandlerTest extends TestCase
 {

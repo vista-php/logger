@@ -22,5 +22,6 @@ final class LogRecord
         public readonly string $message,
         public readonly array $context,
         public readonly DateTimeImmutable $datetime,
-    ) {}
+    ) {
+    }
 }

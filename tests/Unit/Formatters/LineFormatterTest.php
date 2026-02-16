@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Formatters;
 
-use PHPUnit\Framework\TestCase;
-use Vista\Logger\Formatters\LineFormatter;
-use Vista\Logger\LogRecord;
-use Psr\Log\LogLevel;
 use DateTimeImmutable;
 use JsonException;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LogLevel;
+use Vista\Logger\Formatters\LineFormatter;
+use Vista\Logger\LogRecord;
 
 final class LineFormatterTest extends TestCase
 {
