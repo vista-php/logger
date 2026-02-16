@@ -44,7 +44,6 @@ final class Logger implements LoggerInterface
         $this->log(LogLevel::ALERT, $message, $context);
     }
 
-
     /**
      * @param array<string, mixed> $context
      */
