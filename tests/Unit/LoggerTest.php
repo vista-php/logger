@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LogLevel;
 use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\Logger;
@@ -15,6 +16,9 @@ use Vista\Logger\MessageInterpolator;
 
 final class LoggerTest extends TestCase
 {
+    /**
+     * @return array{0: Logger, 1: HandlerInterface&MockObject}
+     */
     private function createLoggerWithHandler(): array
     {
         $handler = $this->createMock(HandlerInterface::class);

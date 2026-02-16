@@ -7,12 +7,14 @@ namespace Tests\Unit\Handlers;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
+use RuntimeException;
 use Vista\Logger\Formatters\FormatterInterface;
 use Vista\Logger\Handlers\StreamHandler;
 use Vista\Logger\LogRecord;
 
 class StreamHandlerTest extends TestCase
 {
+    /** @var list<string> */
     private array $tempFiles = [];
 
     protected function tearDown(): void
@@ -29,6 +31,11 @@ class StreamHandlerTest extends TestCase
     private function createTempPath(): string
     {
         $path = tempnam(sys_get_temp_dir(), 'log_');
+
+        if ($path === false) {
+            throw new RuntimeException('Failed to create temporary file.');
+        }
+
         $this->tempFiles[] = $path;
 
         return $path;
