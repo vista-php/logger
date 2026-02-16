@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Vista\Logger;
 
 use DateTimeImmutable;
-use Stringable;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Stringable;
 use Vista\Logger\Contracts\HandlerInterface;
 
 /**
