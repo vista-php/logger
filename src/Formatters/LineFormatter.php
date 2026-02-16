@@ -33,6 +33,9 @@ final class LineFormatter implements FormatterInterface
         );
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     private function formatContext(array $context): string
     {
         return empty($context)

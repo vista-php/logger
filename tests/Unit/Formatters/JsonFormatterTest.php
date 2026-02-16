@@ -61,6 +61,7 @@ final class JsonFormatterTest extends TestCase
 
         $result = $this->formatter->format($record);
 
+        $this->assertIsString($record->context['url']);
         $this->assertStringContainsString(
             '"' . $record->context['url'] . '"',
             $result
@@ -104,7 +105,8 @@ final class JsonFormatterTest extends TestCase
 
         $result = $this->formatter->format($record);
 
-        $decoded = json_decode(trim($result), true);
+        /** @var array<string, mixed> $decoded */
+        $decoded = json_decode(trim($result), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertSame([], $decoded['context']);
     }

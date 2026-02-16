@@ -28,41 +28,66 @@ final class Logger implements LoggerInterface
         $this->handlers = $handlers;
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function emergency(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::EMERGENCY, $message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function alert(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::ALERT, $message, $context);
     }
 
+
+    /**
+     * @param array<string, mixed> $context
+     */
     public function critical(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::CRITICAL, $message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function error(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::ERROR, $message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function warning(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::WARNING, $message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function notice(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::NOTICE, $message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function info(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::INFO, $message, $context);
     }
 
+    /**
+     * @param array<string, mixed> $context
+     */
     public function debug(string|Stringable $message, array $context = []): void
     {
         $this->log(LogLevel::DEBUG, $message, $context);
@@ -70,6 +95,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param string $level PSR-3 log level
+     * @param array<string, mixed> $context
      */
     public function log($level, string|Stringable $message, array $context = []): void
     {
