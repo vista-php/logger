@@ -13,10 +13,15 @@ use JsonException;
 
 final class LineFormatterTest extends TestCase
 {
+    private LineFormatter $formatter;
+
+    protected function setUp(): void
+    {
+        $this->formatter = new LineFormatter();
+    }
+
     public function testFormatsBasicRecord(): void
     {
-        $formatter = new LineFormatter();
-
         $record = new LogRecord(
             level: LogLevel::INFO,
             message: 'Test message',
@@ -24,7 +29,7 @@ final class LineFormatterTest extends TestCase
             datetime: new DateTimeImmutable('2026-01-01 10:00:00')
         );
 
-        $result = $formatter->format($record);
+        $result = $this->formatter->format($record);
 
         $this->assertSame(
             "[2026-01-01 10:00:00] info: Test message\n",
@@ -34,8 +39,6 @@ final class LineFormatterTest extends TestCase
 
     public function testFormatsWithContext(): void
     {
-        $formatter = new LineFormatter();
-
         $record = new LogRecord(
             level: LogLevel::ERROR,
             message: 'Failure',
@@ -43,7 +46,7 @@ final class LineFormatterTest extends TestCase
             datetime: new DateTimeImmutable('2026-01-01 10:00:00')
         );
 
-        $result = $formatter->format($record);
+        $result = $this->formatter->format($record);
 
         $this->assertSame(
             "[2026-01-01 10:00:00] error: Failure {\"key\":\"value\"}\n",
@@ -53,8 +56,6 @@ final class LineFormatterTest extends TestCase
 
     public function testEndsWithNewline(): void
     {
-        $formatter = new LineFormatter();
-
         $record = new LogRecord(
             level: LogLevel::DEBUG,
             message: 'Line',
@@ -62,7 +63,7 @@ final class LineFormatterTest extends TestCase
             datetime: new DateTimeImmutable('2026-01-01 10:00:00')
         );
 
-        $result = $formatter->format($record);
+        $result = $this->formatter->format($record);
 
         $this->assertStringEndsWith("\n", $result);
     }
@@ -76,13 +77,11 @@ final class LineFormatterTest extends TestCase
             context: ["invalid" => $resource],
             datetime: new DateTimeImmutable('2026-01-01 10:00:00')
         );
-        
-        $formatter = new LineFormatter();
-        
+
         $this->expectException(JsonException::class);
 
         try {
-            $formatter->format($record);
+            $this->formatter->format($record);
         } finally {
             fclose($resource);
         }
@@ -90,8 +89,6 @@ final class LineFormatterTest extends TestCase
 
     public function testDoesNotEscapeSlashes(): void
     {
-        $formatter = new LineFormatter();
-
         $record = new LogRecord(
             level: LogLevel::INFO,
             message: 'URL',
@@ -99,7 +96,7 @@ final class LineFormatterTest extends TestCase
             datetime: new DateTimeImmutable('2026-01-01 10:00:00')
         );
 
-        $result = $formatter->format($record);
+        $result = $this->formatter->format($record);
 
         $this->assertStringContainsString(
             '"https://example.com"',
