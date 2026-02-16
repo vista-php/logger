@@ -1,0 +1,229 @@
+# vista-php/logger
+
+PSR-3 compliant logging package for PHP 8.3+.
+
+Designed for clean architecture, strict correctness, and framework-quality maintainability.
+
+No hidden state. No speculative abstractions. No silent failures.
+
+---
+
+## Features
+- Strict PSR-3 compliance
+- Immutable LogRecord value objects
+- Clean SRP-driven architecture
+- Explicit log level validation
+- Stream-based logging
+- Pluggable formatters
+- Deterministic, environment-independent behavior
+- Fail-fast on programmer errors
+- No global state
+- No hidden side effects
+
+---
+
+## Requirements
+- PHP 8.3+
+- psr/log
+
+---
+
+## Installation
+
+```bash
+composer require vista-php/logger
+```
+
+---
+
+## Architecture Overview
+
+The logging pipeline is intentionally simple and explicit:
+```
+Logger
+  → LogRecord (immutable)
+    → HandlerInterface
+      → FormatterInterface
+        → Output (file / stream)
+```
+
+### Core Principles
+- Strict SR (Single Responsibility)
+- Composition over static helpers
+- Immutable value objects
+- Explicit failure semantics
+- No speculative extension points
+- Production-ready, minimal surface area
+
+---
+
+## Basic Usage
+
+```php
+use Vista\Logger\Logger;
+use Vista\Logger\MessageInterpolator;
+use Vista\Logger\Handlers\StreamHandler;
+use Psr\Log\LogLevel;
+
+$logger = new Logger(
+    new MessageInterpolator(),
+    new StreamHandler(__DIR__ . '/app.log', LogLevel::INFO)
+);
+
+$logger->info('User {name} logged in', ['name' => 'John']);
+```
+
+---
+
+## Log Levels
+
+All PSR-3 log levels are supported:
+- `emergency`
+- `alert`
+- `critical`
+- `error`
+- `warning`
+- `notice`
+- `info`
+- `debug`
+
+Invalid levels throw `InvalidArgumentException`.
+
+---
+
+## `LogRecord`
+
+Each log entry is represented by an immutable `LogRecord`:
+
+```php
+final class LogRecord
+{
+    public readonly string $level;
+    public readonly string $message;
+    public readonly array $context;
+    public readonly DateTimeImmutable $datetime;
+}
+```
+Records are created by the `Logger` and passed to handlers.
+
+---
+
+## Handlers
+
+### `StreamHandler`
+
+Writes log records to a file or stream.
+- Filters by minimum log level
+- Delegates formatting
+- Appends output
+- Supports any stream URI (e.g. `php://stdout`)
+  ```php
+  use Vista\Logger\Handlers\StreamHandler;
+  use Psr\Log\LogLevel;
+
+  $handler = new StreamHandler(
+      path: 'php://stdout',
+      minLevel: LogLevel::WARNING
+  );
+  ```
+
+### `NullHandler`
+
+Discards all log records (Null Object pattern).
+
+Useful for testing or conditional logging.
+
+---
+
+## Formatters
+
+### `LineFormatter` (default)
+
+Human-readable single-line output:
+```
+[2026-02-17 14:32:10] info: User John logged in {"id":123}
+```
+
+Characteristics:
+- Newline-terminated
+- JSON context
+- JSON_THROW_ON_ERROR
+- No trailing whitespace
+
+---
+
+### `JsonFormatter`
+
+Machine-friendly structured logging:
+```json
+{"timestamp":"2026-02-17T14:32:10+00:00","level":"info","message":"User John logged in","context":{"id":123}}
+```
+
+Characteristics:
+- ISO 8601 timestamps
+- Single-line JSON
+- Newline-terminated
+- JSON_THROW_ON_ERROR
+
+---
+
+## Message Interpolation
+
+PSR-3 style placeholder replacement:
+```php
+$logger->info('Hello {name}', ['name' => 'John']);
+```
+Only scalar and `Stringable` values are interpolated.
+Non-interpolatable context values remain available to formatters.
+
+---
+
+## Failure Semantics
+
+- Invalid log levels throw `InvalidArgumentException`
+- JSON encoding failures throw `JsonException`
+- Handlers do not silently swallow critical failures
+- No implicit error suppression
+- The system fails fast on programmer errors.
+
+---
+
+## Design Decisions
+
+This package intentionally avoids:
+- Async logging
+- Channel systems
+- Container integration
+- Configuration loaders
+- Event dispatchers
+- Log rotation
+- Speculative abstractions
+
+The goal is a clean, extensible foundation that can be composed into larger systems without architectural debt.
+
+---
+
+## Testing Philosophy
+- PHPUnit 12
+- Deterministic timestamps
+- Behavior-focused tests
+- No brittle string comparisons
+- No testing of implementation details
+- Strict resource cleanup
+
+---
+
+## Why not Monolog?
+
+***monolog/monolog*** is a powerful, feature-rich logging library and the ecosystem standard. If you need dozens of handlers, complex pipelines, buffering strategies, or broad integrations, Monolog is an excellent choice.
+
+***vista-php/logger*** is intentionally different.
+
+It provides a strict, minimal PSR-3 implementation focused on architectural clarity, immutable log records, explicit failure semantics, and a small, predictable surface area. There are no channels, no buffering layers, no hidden processors, and no speculative abstractions.
+
+Choose ***Monolog*** for ecosystem breadth.
+Choose ***vista-php/logger*** for a clean, framework-grade logging foundation with explicit behavior and minimal complexity.
+
+## License
+
+MIT
