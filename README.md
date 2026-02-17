@@ -9,7 +9,7 @@ PSR-3 compliant logging package for PHP 8.3+.
 
 Designed for clean architecture, strict correctness, and framework-quality maintainability.
 
-No hidden state. No speculative abstractions. Explicit and configurable failure semantics.
+No hidden state. No speculative abstractions. Explicit, configurable failure semantics.
 
 ---
 
@@ -23,6 +23,7 @@ No hidden state. No speculative abstractions. Explicit and configurable failure 
 - Pluggable formatters
 - Deterministic, environment-independent behavior
 - Fail-fast on programmer errors
+- Configurable failure strategies
 - No global state
 - No hidden side effects
 
@@ -52,8 +53,8 @@ The logging pipeline is intentionally simple and explicit:
 Logger
   → LogRecord (immutable)
     → HandlerInterface
-      → FormatterInterface
-        → Output (file / stream)
+        → FormatterInterface
+            → Output (file / stream)
 ```
 
 ### Core Principles
@@ -155,18 +156,23 @@ $handler = new StreamHandler(
 
 Any implementation of `FormatterInterface` can be injected.
 
-#### Strict Mode
+#### Failure Strategies
 
 By default, write failures are reported via `error_log()` and do not interrupt application flow.
 
-You can enable strict mode to throw a `RuntimeException` on write failures:
+You can use `StrictFailureStrategy` to throw a `RuntimeException` on write failures:
 ```php
+use Vista\Logger\Failure\StrictFailureStrategy;
+
 $handler = new StreamHandler(
     path: __DIR__ . '/app.log',
     minLevel: LogLevel::INFO,
-    strict: true
+    failureStrategy: new StrictFailureStrategy()
 );
 ```
+- Default: `ErrorLogFailureStrategy`
+- Alternative: `StrictFailureStrategy`
+- Custom strategies implementing `FailureStrategy` can be injected.
 
 ### `NullHandler`
 
@@ -224,7 +230,7 @@ Non-interpolatable context values remain available to formatters.
 - Invalid log levels throw `InvalidArgumentException`
 - JSON encoding failures throw `JsonException`
 - `StreamHandler` reports write failures via `error_log()` by default
-- Optional strict mode allows throwing `RuntimeException` on write failures
+- Failure handling is configurable via `FailureStrategy`
 - The system fails fast on programmer errors
 
 ---
@@ -257,7 +263,7 @@ The goal is a clean, extensible foundation that can be composed into larger syst
 
 ## Versioning
 
-This package follows Semantic Versioning (SemVer).
+This package adheres to Semantic Versioning (SemVer).
 
 ---
 
