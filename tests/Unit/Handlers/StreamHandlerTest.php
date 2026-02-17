@@ -9,7 +9,9 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use RuntimeException;
+use Vista\Logger\Failure\StrictFailureStrategy;
 use Vista\Logger\Formatters\FormatterInterface;
+use Vista\Logger\Formatters\LineFormatter;
 use Vista\Logger\Handlers\StreamHandler;
 use Vista\Logger\LogRecord;
 
@@ -190,7 +192,12 @@ class StreamHandlerTest extends TestCase
 
         $path = '/vista/logger/non_existent_directory/log.txt';
 
-        $handler = new StreamHandler($path, LogLevel::DEBUG, new \Vista\Logger\Formatters\LineFormatter(), true);
+        $handler = new StreamHandler(
+            $path,
+            LogLevel::DEBUG,
+            new LineFormatter(),
+            new StrictFailureStrategy()
+        );
 
         $record = new LogRecord(
             level: LogLevel::INFO,

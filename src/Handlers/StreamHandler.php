@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use RuntimeException;
 use Vista\Logger\Contracts\HandlerInterface;
+use Vista\Logger\Failure\ErrorLogFailureStrategy;
+use Vista\Logger\Failure\FailureStrategy;
 use Vista\Logger\Formatters\FormatterInterface;
 use Vista\Logger\Formatters\LineFormatter;
 use Vista\Logger\LevelFilter;
@@ -24,12 +26,11 @@ final class StreamHandler implements HandlerInterface
     private LevelFilter $levelFilter;
 
     /**
-     * @param string             $path      File path or stream URI (e.g. php://stdout)
-     * @param string             $minLevel  Minimum PSR-3 log level to be written
-     * @param FormatterInterface $formatter Formatter used to serialize log records before writing.
-     *                                      Defaults to LineFormatter.
-     * @param bool               $strict    If true, exceptions will be thrown on write failures.
-     *                                      Otherwise, errors will be logged to the PHP error log.
+     * @param string             $path            File path or stream URI (e.g. php://stdout)
+     * @param string             $minLevel        Minimum PSR-3 log level to be written
+     * @param FormatterInterface $formatter       Formatter used to serialize log records before writing.
+     *                                            Defaults to LineFormatter.
+     * @param FailureStrategy    $failureStrategy The failure strategy to use when writing fails.
      *
      * @throws InvalidArgumentException If the minimum level is invalid
      */
@@ -37,7 +38,7 @@ final class StreamHandler implements HandlerInterface
         private readonly string $path,
         string $minLevel = LogLevel::DEBUG,
         private readonly FormatterInterface $formatter = new LineFormatter(),
-        private readonly bool $strict = false,
+        private readonly FailureStrategy $failureStrategy = new ErrorLogFailureStrategy(),
     ) {
         $this->levelFilter = new LevelFilter($minLevel);
     }
@@ -66,18 +67,14 @@ final class StreamHandler implements HandlerInterface
         $result = file_put_contents($this->path, $line, FILE_APPEND | LOCK_EX);
 
         if ($result === false) {
-            $message = sprintf('Failed to write log to %s: %s', $this->path, $this->errorMessage());
-
-            if ($this->strict) {
-                throw new RuntimeException($message);
-            }
-
-            error_log($message);
+            $this->failureStrategy->handleFailure($this->errorMessage());
         }
     }
 
     private function errorMessage(): string
     {
-        return error_get_last()['message'] ?? 'unknown error';
+        $message = error_get_last()['message'] ?? 'unknown error';
+
+        return 'Failed to write log to ' . $this->path . ': ' . $message;
     }
 }
