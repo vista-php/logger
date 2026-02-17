@@ -28,6 +28,8 @@ final class StreamHandler implements HandlerInterface
      * @param string             $minLevel  Minimum PSR-3 log level to be written
      * @param FormatterInterface $formatter Formatter used to serialize log records before writing.
      *                                      Defaults to LineFormatter.
+     * @param bool               $strict    If true, exceptions will be thrown on write failures.
+     *                                      Otherwise, errors will be logged to the PHP error log.
      *
      * @throws InvalidArgumentException If the minimum level is invalid
      */
