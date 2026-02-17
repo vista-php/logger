@@ -71,48 +71,6 @@ class StreamHandlerTest extends TestCase
         $this->assertStringContainsString('info: Test message', $contents);
     }
 
-    public function testDoesNotWriteWhenBelowMinimumLevel(): void
-    {
-        $path = $this->createTempPath();
-
-        $handler = new StreamHandler($path, LogLevel::ERROR);
-
-        $record = new LogRecord(
-            level: LogLevel::INFO,
-            message: 'Should not be logged',
-            context: [],
-            datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
-        );
-
-        $handler->handle($record);
-
-        $contents = file_get_contents($path);
-
-        $this->assertNotFalse($contents);
-        $this->assertSame('', $contents);
-    }
-
-    public function testWritesContextAsJson(): void
-    {
-        $path = $this->createTempPath();
-
-        $handler = new StreamHandler($path);
-
-        $record = new LogRecord(
-            level: LogLevel::INFO,
-            message: 'User logged in',
-            context: ['user' => 'John'],
-            datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
-        );
-
-        $handler->handle($record);
-
-        $contents = file_get_contents($path);
-
-        $this->assertNotFalse($contents);
-        $this->assertStringContainsString('{"user":"John"}', $contents);
-    }
-
     public function testAppendsToExistingFile(): void
     {
         $path = $this->createTempPath();
@@ -133,6 +91,27 @@ class StreamHandlerTest extends TestCase
 
         $this->assertNotFalse($contents);
         $this->assertSame(2, substr_count($contents, 'First'));
+    }
+
+    public function testDoesNotWriteWhenBelowMinimumLevel(): void
+    {
+        $path = $this->createTempPath();
+
+        $handler = new StreamHandler($path, LogLevel::ERROR);
+
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'Should not be logged',
+            context: [],
+            datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
+        );
+
+        $handler->handle($record);
+
+        $contents = file_get_contents($path);
+
+        $this->assertNotFalse($contents);
+        $this->assertSame('', $contents);
     }
 
     public function testUsesFormatterOutput(): void
@@ -159,6 +138,27 @@ class StreamHandlerTest extends TestCase
 
         $this->assertNotFalse($contents);
         $this->assertSame("CUSTOM", $contents);
+    }
+
+    public function testWritesContextAsJson(): void
+    {
+        $path = $this->createTempPath();
+
+        $handler = new StreamHandler($path);
+
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'User logged in',
+            context: ['user' => 'John'],
+            datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
+        );
+
+        $handler->handle($record);
+
+        $contents = file_get_contents($path);
+
+        $this->assertNotFalse($contents);
+        $this->assertStringContainsString('{"user":"John"}', $contents);
     }
 
     public function testThrowsExceptionWhenWriteFails(): void
