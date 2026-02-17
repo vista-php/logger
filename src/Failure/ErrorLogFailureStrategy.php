@@ -9,8 +9,8 @@ namespace Vista\Logger\Failure;
  */
 final class ErrorLogFailureStrategy implements FailureStrategy
 {
-    public function handleFailure(string $message): void
+    public function handleFailure(string $path, string $message): void
     {
-        error_log($message);
+        error_log("Failed to write to path: {$path}. Error: {$message}");
     }
 }

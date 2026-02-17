@@ -14,8 +14,8 @@ final class StrictFailureStrategy implements FailureStrategy
     /**
      * @throws RuntimeException
      */
-    public function handleFailure(string $message): void
+    public function handleFailure(string $path, string $message): void
     {
-        throw new RuntimeException($message);
+        throw new RuntimeException("Failed to write to path: {$path}. Error: {$message}");
     }
 }
