@@ -10,7 +10,7 @@ use RuntimeException;
 use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\Formatters\FormatterInterface;
 use Vista\Logger\Formatters\LineFormatter;
-use Vista\Logger\LevelMap;
+use Vista\Logger\LevelFilter;
 use Vista\Logger\LogRecord;
 
 /**
@@ -21,7 +21,7 @@ use Vista\Logger\LogRecord;
  */
 final class StreamHandler implements HandlerInterface
 {
-    private int $minLevelPriority;
+    private LevelFilter $levelFilter;
 
     /**
      * @param string             $path      File path or stream URI (e.g. php://stdout)
@@ -39,7 +39,7 @@ final class StreamHandler implements HandlerInterface
         private readonly FormatterInterface $formatter = new LineFormatter(),
         private readonly bool $strict = false,
     ) {
-        $this->minLevelPriority = LevelMap::toPriority($minLevel);
+        $this->levelFilter = new LevelFilter($minLevel);
     }
 
     /**
@@ -49,7 +49,7 @@ final class StreamHandler implements HandlerInterface
      */
     public function handle(LogRecord $record): void
     {
-        if (LevelMap::toPriority($record->level) < $this->minLevelPriority) {
+        if (!$this->levelFilter->allows($record->level)) {
             return;
         }
 
