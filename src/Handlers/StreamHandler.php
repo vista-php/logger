@@ -6,6 +6,7 @@ namespace Vista\Logger\Handlers;
 
 use InvalidArgumentException;
 use Psr\Log\LogLevel;
+use RuntimeException;
 use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\Formatters\FormatterInterface;
 use Vista\Logger\Formatters\LineFormatter;
@@ -40,6 +41,8 @@ final class StreamHandler implements HandlerInterface
 
     /**
      * Writes the given log record if it meets the minimum level.
+     *
+     * @throws RuntimeException If writing to the stream fails
      */
     public function handle(LogRecord $record): void
     {
@@ -49,6 +52,25 @@ final class StreamHandler implements HandlerInterface
 
         $line = $this->formatter->format($record);
 
-        file_put_contents($this->path, $line, FILE_APPEND);
+        $this->writeLine($line);
+    }
+
+    /**
+     * @throws RuntimeException If writing to the stream fails
+     */
+    private function writeLine(string $line): void
+    {
+        $result = file_put_contents($this->path, $line, FILE_APPEND | LOCK_EX);
+
+        if ($result === false) {
+            throw new RuntimeException(
+                sprintf('Failed to write log to %s: %s', $this->path, $this->errorMessage())
+            );
+        }
+    }
+
+    private function errorMessage(): string
+    {
+        return error_get_last()['message'] ?? 'unknown error';
     }
 }
