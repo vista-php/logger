@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Handlers;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use RuntimeException;
@@ -39,6 +40,13 @@ class StreamHandlerTest extends TestCase
         $this->tempFiles[] = $path;
 
         return $path;
+    }
+
+    public function testThrowsForInvalidMinimumLevel(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new StreamHandler('/tmp/test.log', 'invalid');
     }
 
     public function testWritesLogRecordToFile(): void
