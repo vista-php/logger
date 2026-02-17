@@ -9,11 +9,12 @@ PSR-3 compliant logging package for PHP 8.3+.
 
 Designed for clean architecture, strict correctness, and framework-quality maintainability.
 
-No hidden state. No speculative abstractions. No silent failures.
+No hidden state. No speculative abstractions. Explicit and configurable failure semantics.
 
 ---
 
 ## Features
+
 - Strict PSR-3 compliance
 - Immutable LogRecord value objects
 - Clean SRP-driven architecture
@@ -28,8 +29,11 @@ No hidden state. No speculative abstractions. No silent failures.
 ---
 
 ## Requirements
+
 - PHP 8.3+
-- psr/log
+- psr/log ^3.0
+
+Tested against PHP 8.3, 8.4, and 8.5.
 
 ---
 
@@ -53,7 +57,8 @@ Logger
 ```
 
 ### Core Principles
-- Strict SR (Single Responsibility)
+
+- Strict Single Responsibility (SRP)
 - Composition over static helpers
 - Immutable value objects
 - Explicit failure semantics
@@ -132,6 +137,37 @@ Writes log records to a file or stream.
   );
   ```
 
+#### Custom Formatter
+
+You can provide a custom formatter implementation:
+
+```php
+use Vista\Logger\Handlers\StreamHandler;
+use Vista\Logger\Formatters\JsonFormatter;
+use Psr\Log\LogLevel;
+
+$handler = new StreamHandler(
+    path: __DIR__ . '/app.log',
+    minLevel: LogLevel::INFO,
+    formatter: new JsonFormatter()
+);
+```
+
+Any implementation of `FormatterInterface` can be injected.
+
+#### Strict Mode
+
+By default, write failures are reported via `error_log()` and do not interrupt application flow.
+
+You can enable strict mode to throw a `RuntimeException` on write failures:
+```php
+$handler = new StreamHandler(
+    path: __DIR__ . '/app.log',
+    minLevel: LogLevel::INFO,
+    strict: true
+);
+```
+
 ### `NullHandler`
 
 Discards all log records (Null Object pattern).
@@ -187,9 +223,9 @@ Non-interpolatable context values remain available to formatters.
 
 - Invalid log levels throw `InvalidArgumentException`
 - JSON encoding failures throw `JsonException`
-- Handlers do not silently swallow critical failures
-- No implicit error suppression
-- The system fails fast on programmer errors.
+- `StreamHandler` reports write failures via `error_log()` by default
+- Optional strict mode allows throwing `RuntimeException` on write failures
+- The system fails fast on programmer errors
 
 ---
 
@@ -209,6 +245,7 @@ The goal is a clean, extensible foundation that can be composed into larger syst
 ---
 
 ## Testing Philosophy
+
 - PHPUnit 12
 - Deterministic timestamps
 - Behavior-focused tests
@@ -218,16 +255,22 @@ The goal is a clean, extensible foundation that can be composed into larger syst
 
 ---
 
+## Versioning
+
+This package follows Semantic Versioning (SemVer).
+
+---
+
 ## Why not Monolog?
 
-***monolog/monolog*** is a powerful, feature-rich logging library and the ecosystem standard. If you need dozens of handlers, complex pipelines, buffering strategies, or broad integrations, Monolog is an excellent choice.
+`monolog/monolog` is a powerful, feature-rich logging library and the ecosystem standard. If you need dozens of handlers, complex pipelines, buffering strategies, or broad integrations, Monolog is an excellent choice.
 
-***vista-php/logger*** is intentionally different.
+`vista-php/logger` is intentionally different.
 
 It provides a strict, minimal PSR-3 implementation focused on architectural clarity, immutable log records, explicit failure semantics, and a small, predictable surface area. There are no channels, no buffering layers, no hidden processors, and no speculative abstractions.
 
-Choose ***Monolog*** for ecosystem breadth.
-Choose ***vista-php/logger*** for a clean, framework-grade logging foundation with explicit behavior and minimal complexity.
+Choose `Monolog` for ecosystem breadth.
+Choose `vista-php/logger` for a clean, framework-grade logging foundation with explicit behavior and minimal complexity.
 
 ## License
 
