@@ -54,27 +54,20 @@ final class StreamHandler implements HandlerInterface
             return;
         }
 
-        $line = $this->formatter->format($record);
-
-        $this->writeLine($line);
+        $this->write($this->formatter->format($record));
     }
 
     /**
-     * @throws RuntimeException If writing to the stream fails
+     * @throws RuntimeException If the configured failure strategy escalates the failure
      */
-    private function writeLine(string $line): void
+    private function write(string $formatted): void
     {
-        $result = file_put_contents($this->path, $line, FILE_APPEND | LOCK_EX);
+        $result = file_put_contents($this->path, $formatted, FILE_APPEND | LOCK_EX);
 
         if ($result === false) {
-            $this->failureStrategy->handleFailure($this->errorMessage());
+            $error = error_get_last()['message'] ?? 'unknown error';
+
+            $this->failureStrategy->handleFailure($this->path, $error);
         }
-    }
-
-    private function errorMessage(): string
-    {
-        $message = error_get_last()['message'] ?? 'unknown error';
-
-        return 'Failed to write log to ' . $this->path . ': ' . $message;
     }
 }

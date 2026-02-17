@@ -17,6 +17,6 @@ class StrictFailureStrategyTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Test message');
 
-        $strategy->handleFailure('Test message');
+        $strategy->handleFailure('/tmp/test.log', 'Test message');
     }
 }

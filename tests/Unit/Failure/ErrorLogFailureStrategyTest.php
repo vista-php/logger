@@ -15,6 +15,6 @@ final class ErrorLogFailureStrategyTest extends TestCase
 
         $this->expectNotToPerformAssertions();
 
-        $strategy->handleFailure('Test message');
+        $strategy->handleFailure('/tmp/test.log', 'Test message');
     }
 }
