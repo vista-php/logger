@@ -1,5 +1,10 @@
 # vista-php/logger
 
+![Latest Version](https://img.shields.io/packagist/v/vista-php/logger)
+![PHP Version](https://img.shields.io/packagist/php-v/vista-php/logger)
+![License](https://img.shields.io/packagist/l/vista-php/logger)
+![CI](https://github.com/vista-php/logger/actions/workflows/ci.yml/badge.svg)
+
 PSR-3 compliant logging package for PHP 8.3+.
 
 Designed for clean architecture, strict correctness, and framework-quality maintainability.
