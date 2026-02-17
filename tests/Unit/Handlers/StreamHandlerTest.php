@@ -161,10 +161,8 @@ class StreamHandlerTest extends TestCase
         $this->assertStringContainsString('{"user":"John"}', $contents);
     }
 
-    public function testThrowsExceptionWhenWriteFails(): void
+    public function testDoesNotThrowWhenWriteFailsInNonStrictMode(): void
     {
-        $this->expectException(RuntimeException::class);
-
         $path = '/vista/logger/non_existent_directory/log.txt';
 
         $handler = new StreamHandler($path);
@@ -176,8 +174,34 @@ class StreamHandlerTest extends TestCase
             datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
         );
 
+        set_error_handler(static fn () => true);
+
         try {
-            set_error_handler(static fn () => true);
+            $handler->handle($record);
+            $this->addToAssertionCount(1); // ensure test is not marked as risky
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    public function testThrowsExceptionWhenWriteFailsInStrictMode(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        $path = '/vista/logger/non_existent_directory/log.txt';
+
+        $handler = new StreamHandler($path, LogLevel::DEBUG, new \Vista\Logger\Formatters\LineFormatter(), true);
+
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'Failure',
+            context: [],
+            datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
+        );
+
+        set_error_handler(static fn () => true);
+
+        try {
             $handler->handle($record);
         } finally {
             restore_error_handler();

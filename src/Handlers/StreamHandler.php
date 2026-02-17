@@ -35,6 +35,7 @@ final class StreamHandler implements HandlerInterface
         private readonly string $path,
         string $minLevel = LogLevel::DEBUG,
         private readonly FormatterInterface $formatter = new LineFormatter(),
+        private readonly bool $strict = false,
     ) {
         $this->minLevelPriority = LevelMap::toPriority($minLevel);
     }
@@ -63,9 +64,13 @@ final class StreamHandler implements HandlerInterface
         $result = file_put_contents($this->path, $line, FILE_APPEND | LOCK_EX);
 
         if ($result === false) {
-            throw new RuntimeException(
-                sprintf('Failed to write log to %s: %s', $this->path, $this->errorMessage())
-            );
+            $message = sprintf('Failed to write log to %s: %s', $this->path, $this->errorMessage());
+
+            if ($this->strict) {
+                throw new RuntimeException($message);
+            }
+
+            error_log($message);
         }
     }
 
