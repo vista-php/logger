@@ -72,12 +72,10 @@ Logger
 
 ```php
 use Vista\Logger\Logger;
-use Vista\Logger\MessageInterpolator;
 use Vista\Logger\Handlers\StreamHandler;
 use Psr\Log\LogLevel;
 
 $logger = new Logger(
-    new MessageInterpolator(),
     new StreamHandler(__DIR__ . '/app.log', LogLevel::INFO)
 );
 

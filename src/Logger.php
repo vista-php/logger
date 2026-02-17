@@ -21,11 +21,12 @@ final class Logger implements LoggerInterface
     /** @var HandlerInterface[] */
     private array $handlers;
 
-    public function __construct(
-        private readonly MessageInterpolator $interpolator,
-        HandlerInterface ...$handlers
-    ) {
+    private MessageInterpolator $interpolator;
+
+    public function __construct(HandlerInterface ...$handlers)
+    {
         $this->handlers = $handlers;
+        $this->interpolator = new MessageInterpolator();
     }
 
     /**

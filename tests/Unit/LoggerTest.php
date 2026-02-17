@@ -12,7 +12,6 @@ use Psr\Log\LogLevel;
 use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\Logger;
 use Vista\Logger\LogRecord;
-use Vista\Logger\MessageInterpolator;
 
 final class LoggerTest extends TestCase
 {
@@ -22,7 +21,7 @@ final class LoggerTest extends TestCase
     private function createLoggerWithHandler(): array
     {
         $handler = $this->createMock(HandlerInterface::class);
-        $logger = new Logger(new MessageInterpolator(), $handler);
+        $logger = new Logger($handler);
 
         return [$logger, $handler];
     }
@@ -81,7 +80,7 @@ final class LoggerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $logger = new Logger(new MessageInterpolator());
+        $logger = new Logger();
         $logger->info('Test');
     }
 
@@ -90,7 +89,7 @@ final class LoggerTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid log level: invalid');
 
-        $logger = new Logger(new MessageInterpolator());
+        $logger = new Logger();
         $logger->log('invalid', 'Message');
     }
 }
