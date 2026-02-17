@@ -104,15 +104,23 @@ final class Logger implements LoggerInterface
             return;
         }
 
-        $record = new LogRecord(
+        $record = $this->createRecord($level, $message, $context);
+
+        foreach ($this->handlers as $handler) {
+            $handler->handle($record);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function createRecord(string $level, string|Stringable $message, array $context): LogRecord
+    {
+        return new LogRecord(
             level: $level,
             message: $this->interpolator->interpolate((string) $message, $context),
             context: $context,
             datetime: new DateTimeImmutable(),
         );
-
-        foreach ($this->handlers as $handler) {
-            $handler->handle($record);
-        }
     }
 }
