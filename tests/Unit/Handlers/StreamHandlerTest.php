@@ -152,4 +152,27 @@ class StreamHandlerTest extends TestCase
         $this->assertNotFalse($contents);
         $this->assertSame("CUSTOM", $contents);
     }
+
+    public function testThrowsExceptionWhenWriteFails(): void
+    {
+        $this->expectException(RuntimeException::class);
+
+        $path = '/vista/logger/non_existent_directory/log.txt';
+
+        $handler = new StreamHandler($path);
+
+        $record = new LogRecord(
+            level: LogLevel::INFO,
+            message: 'Failure',
+            context: [],
+            datetime: new DateTimeImmutable('2026-01-01 10:00:00'),
+        );
+
+        try {
+            set_error_handler(static fn () => true);
+            $handler->handle($record);
+        } finally {
+            restore_error_handler();
+        }
+    }
 }
