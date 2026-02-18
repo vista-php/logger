@@ -12,11 +12,59 @@ Designed for clean architecture, strict correctness, and framework-quality maint
 No hidden state. No speculative abstractions. Explicit, configurable failure semantics.
 
 ---
+## Table of Contents
+
+- [Philosophy](#philosophy)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Architecture Overview](#architecture-overview)
+  - [Core Principles](#core-principles)
+- [Basic Usage](#basic-usage)
+- [Log Levels](#log-levels)
+- [LogRecord](#logrecord)
+- [Multiple Handlers](#multiple-handlers)
+  - [Execution Semantics](#execution-semantics)
+- [Handlers](#handlers)
+  - [StreamHandler](#streamhandler)
+    - [Custom Formatter](#custom-formatter)
+    - [Failure Strategies](#failure-strategies)
+  - [NullHandler](#nullhandler)
+- [Formatters](#formatters)
+  - [LineFormatter](#lineformatter-default)
+  - [JsonFormatter](#jsonformatter)
+- [Message Interpolation](#message-interpolation)
+- [Failure Semantics](#failure-semantics)
+- [Design Decisions](#design-decisions)
+- [Testing Philosophy](#testing-philosophy)
+- [Versioning](#versioning)
+- [Why not Monolog?](#why-not-monolog)
+- [License](#license)
+- [Contributing](#contributing)
+  - [Non-Goals](#non-goals)
+  - [Development Setup](#development-setup)
+
+---
+
+## Philosophy
+
+`vista-php/logger` is a minimal, infrastructure-level logging foundation.
+
+It strictly implements the PSR-3 contract while enforcing clear architectural boundaries:
+- Validation occurs at the API boundary.
+- Log records are immutable and treated as data carriers.
+- Handlers encapsulate output policy.
+- Formatters encapsulate serialization.
+- Failure behavior is explicit and configurable.
+
+The package prioritizes clarity, determinism, and explicit behavior over feature breadth.
+
+---
 
 ## Features
 
 - Strict PSR-3 compliance
-- Immutable LogRecord value objects
+- Immutable `LogRecord` value objects
 - Clean SRP-driven architecture
 - Explicit log level validation
 - Stream-based logging
@@ -24,6 +72,7 @@ No hidden state. No speculative abstractions. Explicit, configurable failure sem
 - Deterministic, environment-independent behavior
 - Fail-fast on programmer errors
 - Configurable failure strategies
+- Explicit multi-handler execution semantics
 - No global state
 - No hidden side effects
 
@@ -60,9 +109,10 @@ Logger
 ### Core Principles
 
 - Strict Single Responsibility (SRP)
-- Composition over static helpers
+- Clear API boundary validation
 - Immutable value objects
 - Explicit failure semantics
+- Fail-fast philosophy
 - No speculative extension points
 - Production-ready, minimal surface area
 
@@ -96,7 +146,9 @@ All PSR-3 log levels are supported:
 - `info`
 - `debug`
 
-Invalid levels throw `InvalidArgumentException`.
+Invalid levels throw `InvalidArgumentException` immediately, even if no handlers are registered.
+
+Validation occurs at the `Logger` API boundary.
 
 ---
 
@@ -113,10 +165,31 @@ final class LogRecord
     public readonly DateTimeImmutable $datetime;
 }
 ```
-Records are created by the `Logger` and passed to handlers.
+
+Records are created exclusively by the `Logger` and passed to handlers. They are treated as immutable data carriers.
 
 ---
 
+## Multiple Handlers
+
+You may register multiple handlers:
+
+```php
+$logger = new Logger($handlerA, $handlerB);
+```
+
+### Execution Semantics
+
+Handlers are executed sequentially.
+
+If any handler throws an exception:
+- Execution stops immediately.
+- Subsequent handlers are not executed.
+- The exception bubbles up to the caller.
+
+This behavior is intentional and aligns with the fail-fast design philosophy.
+
+--- 
 ## Handlers
 
 ### `StreamHandler`
@@ -124,8 +197,11 @@ Records are created by the `Logger` and passed to handlers.
 Writes log records to a file or stream.
 - Filters by minimum log level
 - Delegates formatting
-- Appends output
+- Appends output using `FILE_APPEND | LOCK_EX`
 - Supports any stream URI (e.g. `php://stdout`)
+- Does not manage stream resources manually
+- Does not buffer
+- Does not rotate files
   ```php
   use Vista\Logger\Handlers\StreamHandler;
   use Psr\Log\LogLevel;
@@ -135,6 +211,8 @@ Writes log records to a file or stream.
       minLevel: LogLevel::WARNING
   );
   ```
+> Note: File locking relies on underlying filesystem semantics
+> Behavior may vary on certain network filesystems.
 
 #### Custom Formatter
 
@@ -170,7 +248,9 @@ $handler = new StreamHandler(
 ```
 - Default: `ErrorLogFailureStrategy`
 - Alternative: `StrictFailureStrategy`
-- Custom strategies implementing `FailureStrategy` can be injected.
+- Custom implementations of `FailureStrategy` can be injected
+
+Failure handling is explicit and local to each handler.
 
 ### `NullHandler`
 
@@ -192,7 +272,7 @@ Human-readable single-line output:
 Characteristics:
 - Newline-terminated
 - JSON context
-- JSON_THROW_ON_ERROR
+- `JSON_THROW_ON_ERROR`
 - No trailing whitespace
 
 ---
@@ -208,7 +288,7 @@ Characteristics:
 - ISO 8601 timestamps
 - Single-line JSON
 - Newline-terminated
-- JSON_THROW_ON_ERROR
+- `JSON_THROW_ON_ERROR`
 
 ---
 
@@ -218,18 +298,22 @@ PSR-3 style placeholder replacement:
 ```php
 $logger->info('Hello {name}', ['name' => 'John']);
 ```
-Only scalar and `Stringable` values are interpolated.
-Non-interpolatable context values remain available to formatters.
+- Only scalar and `Stringable` values are interpolated
+- Non-interpolatable context values remain available to formatters
+- Interpolation does not mutate context
+- Missing placeholders are left untouched
 
 ---
 
 ## Failure Semantics
 
-- Invalid log levels throw `InvalidArgumentException`
+- Invalid log levels throw `InvalidArgumentException` immediately
 - JSON encoding failures throw `JsonException`
 - `StreamHandler` reports write failures via `error_log()` by default
 - Failure handling is configurable via `FailureStrategy`
-- The system fails fast on programmer errors
+  - Strict mode escalates write failures via `RuntimeException`
+  - Multi-handler execution is fail-fast
+  - No silent swallowing of programmer errors
 
 ---
 
@@ -242,6 +326,8 @@ This package intentionally avoids:
 - Configuration loaders
 - Event dispatchers
 - Log rotation
+- Buffering layers
+- Implicit processors
 - Speculative abstractions
 
 The goal is a clean, extensible foundation that can be composed into larger systems without architectural debt.
@@ -253,9 +339,10 @@ The goal is a clean, extensible foundation that can be composed into larger syst
 - PHPUnit 12
 - Deterministic timestamps
 - Behavior-focused tests
-- No brittle string comparisons
-- No testing of implementation details
+- No brittle raw string comparisons
+- No testing of private implementation details
 - Strict resource cleanup
+- PHPStan level 10 clean
 
 ---
 
@@ -276,6 +363,47 @@ It provides a strict, minimal PSR-3 implementation focused on architectural clar
 Choose `Monolog` for ecosystem breadth.
 Choose `vista-php/logger` for a clean, framework-grade logging foundation with explicit behavior and minimal complexity.
 
+---
+
 ## License
 
 MIT
+
+---
+
+## Contributing
+
+Contributions are welcome, but this package is intentionally minimal and opinionated.
+
+Before opening a pull request, please ensure:
+- The change aligns with the core principles (SRP, minimal surface area, explicit behavior).
+- No speculative abstractions are introduced.
+- The feature solves a real, demonstrated use case.
+- Tests are deterministic and behavior-focused.
+- PHPStan level 10 passes.
+- Coding style passes php-cs-fixer.
+- Commit messages follow Conventional Commits.
+
+### Non-Goals
+
+The following will not be accepted:
+- Async logging
+- Channel systems
+- Configuration loaders
+- Container integrations
+- Event dispatchers
+- Buffering layers
+- Implicit processors
+- Log rotation
+- Speculative extension points
+
+If you need these features, consider composing this package or using `monolog/monolog`.
+
+### Development Setup
+
+```bash
+composer install
+composer analyze
+composer test
+composer check-style
+```
