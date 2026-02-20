@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Vista\Logger;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Stringable;
@@ -31,6 +32,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function emergency(string|Stringable $message, array $context = []): void
     {
@@ -39,6 +41,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function alert(string|Stringable $message, array $context = []): void
     {
@@ -47,6 +50,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function critical(string|Stringable $message, array $context = []): void
     {
@@ -55,6 +59,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function error(string|Stringable $message, array $context = []): void
     {
@@ -63,6 +68,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function warning(string|Stringable $message, array $context = []): void
     {
@@ -71,6 +77,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function notice(string|Stringable $message, array $context = []): void
     {
@@ -79,6 +86,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function info(string|Stringable $message, array $context = []): void
     {
@@ -87,6 +95,7 @@ final class Logger implements LoggerInterface
 
     /**
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function debug(string|Stringable $message, array $context = []): void
     {
@@ -96,6 +105,7 @@ final class Logger implements LoggerInterface
     /**
      * @param string $level PSR-3 log level
      * @param array<string, mixed> $context
+     * @throws InvalidArgumentException if the log level is invalid
      */
     public function log($level, string|Stringable $message, array $context = []): void
     {
