@@ -9,7 +9,7 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Stringable;
-use Vista\Logger\Contracts\HandlerInterface;
+use Vista\Logger\Handlers\HandlerInterface;
 
 /**
  * PSR-3 compliant logger implementation.

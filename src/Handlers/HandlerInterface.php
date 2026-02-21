@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vista\Logger\Contracts;
+namespace Vista\Logger\Handlers;
 
 use Vista\Logger\LogRecord;
 

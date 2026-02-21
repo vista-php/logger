@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Vista\Logger\Handlers;
 
-use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\LogRecord;
 
 /**

@@ -7,7 +7,6 @@ namespace Vista\Logger\Handlers;
 use InvalidArgumentException;
 use Psr\Log\LogLevel;
 use RuntimeException;
-use Vista\Logger\Contracts\HandlerInterface;
 use Vista\Logger\Failure\ErrorLogFailureStrategy;
 use Vista\Logger\Failure\FailureStrategy;
 use Vista\Logger\Formatters\FormatterInterface;

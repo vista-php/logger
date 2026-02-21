@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
-use Vista\Logger\Contracts\HandlerInterface;
+use Vista\Logger\Handlers\HandlerInterface;
 use Vista\Logger\Logger;
 use Vista\Logger\LogRecord;
 
